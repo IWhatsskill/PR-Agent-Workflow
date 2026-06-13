@@ -1,0 +1,28 @@
+.git/
+.DS_Store
+Thumbs.db
+
+# Secrets and local/private files
+.env
+.env.*
+*.pem
+*.p12
+*.pfx
+*.key
+id_rsa*
+id_ed25519*
+known_hosts
+*.kdbx
+*.age
+*.gpg
+*.asc
+*.token
+*secret*
+*password*
+
+# Local work artifacts
+tmp/
+temp/
+*.log
+*.bak
+*.tmp
