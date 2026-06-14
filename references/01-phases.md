@@ -406,7 +406,59 @@ Post-check:
 Not done:
 Next GO:
 ```
-## Phase 13: UPSTREAM-PR-REVIEW
+## Phase 13: HANDOFF / STATE
+
+Purpose:
+- Update approved local task state/current state/handoff files after PR work.
+- Make resume after compaction or a new agent safe without re-reading old archives.
+
+Allowed:
+- Update only operator-approved local state or handoff files.
+- Write a short handoff summary.
+- Mark the next safe step.
+
+Required fields:
+- Issue:
+- PR:
+- Checkout:
+- Branch:
+- Latest commit:
+- Work done:
+- Proof:
+- Publish:
+- Cleanup:
+- Open items:
+- Next safe step:
+
+Forbidden:
+- Code changes.
+- Tests or builds.
+- SSH, server, device, or testserver work.
+- Tracker/GitHub/GitLab write.
+- Commit, push, PR creation, labels, comments, reruns, ready/draft changes.
+- Reconstructing old archives or adding long history to state files.
+
+Stop if:
+- The requested state target is unclear.
+- The handoff would require reading archives or old proof notes that were not explicitly named.
+
+Output:
+```text
+Phase: HANDOFF
+Issue:
+PR:
+Checkout:
+Branch:
+Latest commit:
+Work done:
+Proof:
+Publish:
+Cleanup:
+Open items:
+Next safe step:
+Not done:
+```
+## Phase 14: UPSTREAM-PR-REVIEW
 
 Purpose:
 - Review external or upstream PRs read-only for relevance and risk to integrations or agent setups.

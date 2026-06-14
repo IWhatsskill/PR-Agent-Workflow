@@ -1,6 +1,6 @@
 ---
 name: pr-agent-workflow
-description: "Safe phase-based workflow for PR agents: scout, ownership gate, inspect, hygiene, patch, proof, PR body, publish, and read-only upstream PR review."
+description: "Safe phase-based PR workflow: scout, gate, inspect, patch, proof, body, publish, handoff, and upstream PR review."
 license: MIT
 ---
 
@@ -27,6 +27,7 @@ Examples:
 - `PUBLISH-CHECK-GO for PR #<PR>` is a read-only post-publish check; every reaction still needs its own exact `PUBLISH-GO`.
 - After a successful push or PR-body update, stop and recommend the next exact GO instead of chaining actions.
 - After a successful push, stop. Creating a PR always requires a separate `PUBLISH-GO: create draft PR`; PRs default to draft unless the operator explicitly says `ready` / `non-draft`.
+- After PUBLISH, PUBLISH-CHECK, BLOCKED, CLEANUP, or abort, report `State update needed: yes/no`. Writing state needs separate HANDOFF-GO / STATE-GO.
 
 If the operator says `no commands`, run no commands, including read-only commands.
 If the operator says to stop, wait, or go inactive, do nothing in the background.
@@ -70,7 +71,8 @@ Read only the files needed for the current phase.
 - Phase 10: SERVER-CONTEXT
 - Phase 11: BLOCKED-PATH-REVIEW
 - Phase 12: CLEANUP
-- Phase 13: UPSTREAM-PR-REVIEW
+- Phase 13: HANDOFF / STATE
+- Phase 14: UPSTREAM-PR-REVIEW
 
 Normal flow:
 
@@ -93,7 +95,8 @@ Workflow order wins over numeric order.
 - PROOF must include real behavior proof: Before evidence, After evidence, observed result, affected runtime/layer in `Real environment tested`, and proof gap if incomplete. Unit/mock tests count only when they directly reproduce the reported flow before/after and no closer real path is allowed or available. Tests alone are not publish proof unless they contain a real before/after repro or the operator explicitly accepts the proof gap. Add before/after screenshots or videos when visual or useful.
 - Before PROOF, PR-BODY, and every PUBLISH action, run a fresh duplicate check.
 - If the fresh duplicate check is `BLOCKED` or `UNCLEAR`, stop.
-- Phase 13 / UPSTREAM-PR-REVIEW is read-only review of external or upstream PRs. No patch, no test server, no tracker/GitHub/GitLab write.
+- Phase 13 / HANDOFF-STATE updates only approved local state or handoff files. No code, tests, server work, tracker/GitHub/GitLab write, commit, push, or PR action.
+- Phase 14 / UPSTREAM-PR-REVIEW is read-only review of external or upstream PRs. No patch, no test server, no tracker/GitHub/GitLab write.
 
 Concrete bundling rules:
 - SCOUT may check multiple defined read-only search windows until it has up to 3 candidates or can report the checked window as empty/blocker-heavy.

@@ -380,6 +380,23 @@ Post-check:
 Not done:
 Next GO:
 ```
+## HANDOFF / STATE
+
+```text
+Phase: HANDOFF
+Issue:
+PR:
+Checkout:
+Branch:
+Latest commit:
+Work done:
+Proof:
+Publish:
+Cleanup:
+Open items:
+Next safe step:
+Not done:
+```
 ## UPSTREAM-PR-REVIEW
 
 ```text

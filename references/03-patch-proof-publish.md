@@ -386,4 +386,26 @@ After PR creation:
 - no external announcement
 
 All of those need a new PUBLISH-GO.
+## HANDOFF / STATE
+
+After PUBLISH, PUBLISH-CHECK, BLOCKED, CLEANUP, or abort, report:
+
+```text
+State update needed: yes/no
+```
+
+Writing state is never automatic. It needs a separate `HANDOFF-GO` / `STATE-GO`.
+
+Allowed in HANDOFF / STATE:
+- update only operator-approved local state or handoff files
+- write a short resume-safe summary
+- record the next safe step
+
+Forbidden in HANDOFF / STATE:
+- code changes
+- tests/builds
+- SSH/server/testserver work
+- tracker/GitHub/GitLab write
+- commit, push, PR creation, comments, labels, reruns, ready/draft changes
+- reconstructing old archives or long history
 

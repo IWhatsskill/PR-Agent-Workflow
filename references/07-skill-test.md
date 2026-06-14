@@ -121,7 +121,8 @@ Clean up only that exact disposable run directory. No wildcards, no parent/root 
 ### Upstream PR Review
 
 ```text
-Use pr-agent-workflow. Phase 13 <PR>.
+Use pr-agent-workflow. Phase 13 STATE-GO for <issue-or-pr>.
+Use pr-agent-workflow. Phase 14 <PR>.
 Read-only PR review. No patch, no checkout, no test server, no write.
 ```
 
