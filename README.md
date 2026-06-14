@@ -9,6 +9,8 @@ Use it when you want cautious agent-assisted maintenance, bug fixing, upstream P
 <p align="center">
   <a href="SKILL.md"><strong>Skill file</strong></a>
   &nbsp;|&nbsp;
+  <a href="docs/INSTALL.md"><strong>Install</strong></a>
+  &nbsp;|&nbsp;
   <a href="docs/WORKFLOW.md"><strong>Workflow guide</strong></a>
   &nbsp;|&nbsp;
   <a href="references/04-output-templates.md"><strong>Output templates</strong></a>
