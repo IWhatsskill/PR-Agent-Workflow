@@ -37,8 +37,9 @@ Wrong:
 
 Right:
 - INSPECT recommends HYGIENE / checkout readiness.
-- patch only when the concrete checkout is clean, free, and fresh enough.
-- fetch/switch/fast-forward needs extra OK.
+- patch only when the concrete checkout is clean, free, and current on `main`.
+- Phase 5 may run `git fetch origin`, `git switch main`, and `git merge --ff-only origin/main` only for the exact named clean/free checkout.
+- dirty, occupied, unclear, switch failure, or non-fast-forward means stop and report.
 
 ## 4. Patch Covers Only One Issue Variant
 
@@ -98,10 +99,12 @@ Right:
 Wrong:
 - SCOUT bundles search windows and then starts GATE or INSPECT.
 - GATE bundles duplicate checks and then starts code reading.
-- HYGIENE checks status and then fetches or switches branch.
+- HYGIENE updates a dirty, occupied, unclear, or unnamed checkout.
+- HYGIENE uses `git pull`, reset, clean, rebase, branch deletion, or a non-fast-forward merge.
 
 Right:
-- bundling is read-only only.
+- SCOUT and GATE bundling is read-only only.
+- HYGIENE may update only the exact named clean/free checkout with fetch, switch main, and ff-only.
 - bundling never authorizes the next phase.
 - write/change actions still need exact GO.
 

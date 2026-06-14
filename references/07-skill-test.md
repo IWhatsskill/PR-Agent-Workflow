@@ -112,13 +112,22 @@ Expected:
 - clear BLOCKED/UNCLEAR/FREE-REST
 - no patch/proof/write
 
+### Cleanup
+
+```text
+Use pr-agent-workflow. Phase 12 <approved disposable run directory>.
+Clean up only that exact disposable run directory. No wildcards, no parent/root cleanup.
+```
 ### Upstream PR Review
 
 ```text
-Use pr-agent-workflow. Phase 12 <PR>.
+Use pr-agent-workflow. Phase 13 <PR>.
 Read-only PR review. No patch, no checkout, no test server, no write.
 ```
 
 Expected:
 - relevance/risk for integrators or agent operators
 - recommendation: watch / test / wait / irrelevant
+
+
+

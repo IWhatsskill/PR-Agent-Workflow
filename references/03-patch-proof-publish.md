@@ -47,30 +47,36 @@ Why:
 
 ## HYGIENE Before PATCH
 
-Before PATCH, the concrete checkout must be checked.
+Before PATCH, the concrete checkout must be checked and brought to current `origin/main`.
 
-First step allowed:
+Allowed for the named checkout:
 - status
 - branch
 - clean/dirty
 - free/occupied
-- `git diff --stat` read-only
-- base/current freshness estimate
+- `git diff --stat`
+- `git fetch origin`
+- `git switch main`
+- `git merge --ff-only origin/main`
+- final branch and distance check against `origin/main`
 
-Forbidden without extra GO:
-- fetch
-- pull
-- switch
-- merge
+Stop and report if:
+- checkout is dirty, occupied, or unclear
+- `git switch main` fails
+- `git merge --ff-only origin/main` fails
+- `main` is still not current after the fast-forward attempt
+
+Forbidden in HYGIENE:
+- `git pull`
+- non-fast-forward merge
+- rebase
 - reset
 - clean
 - branch delete
 - file delete
+- patching
+- tests/builds
 - tracker/GitHub/GitLab write
-
-If fetch/update is needed:
-- ask the operator
-- do not continue automatically
 
 ## PATCH
 
@@ -186,8 +192,10 @@ Prerequisites:
 
 Allowed:
 - only named tests/proofs
-- test server only with named environment and purpose
+- test server only with named environment, purpose, scope, and approved disposable run root
 - brief result summary
+- real behavior proof for the reported issue
+- before/after screenshots or videos when the change is visual, UI-facing, or otherwise useful to observe
 
 Forbidden:
 - installs/updates without extra OK
@@ -201,16 +209,75 @@ Proof levels:
 - `diagnostic runtime`: real product path in disposable setup
 - `live behavior`: real UI/API/channel/provider/runtime observation, redacted
 
-For UI/API/runtime/integration bugs:
-- source tests alone may not be strong enough
-- aim for before/after runtime proof when practical
-- prefer screenshots/videos/log snippets when relevant and safe
+Test environment and disposable run directory rules:
+- Server or filesystem proof may use only the environment explicitly named by the operator for that run.
+- If proof creates files on a server or shared filesystem, the operator must name or approve a disposable run root before work starts.
+- Use one fresh unique directory under that root: `<approved-run-root>/<date>-<issue-or-pr>-<short-slug>`.
+- Never work directly in the run root or its parent directory.
+- Never reuse an existing run directory unless the operator explicitly names that exact directory.
+- Before work, report/check current working directory and target directory.
+- If the path is wrong or unclear: STOP.
+- Cleanup is never part of PROOF; recommend Phase 12 / CLEANUP-GO later.
+Real behavior proof:
+- Always required for PR proof.
+- Must prove the reported behavior before and after the patch.
+- `Real environment tested` must name the actual affected runtime or layer, such as local product/runtime, plugin or handler integration, CLI command, browser UI, test server, live transport, Gateway/API path, or queue/runtime path.
+- Unit or mock tests count only when they directly reproduce the reported flow before/after and no closer real path is allowed or available in that phase.
+- Tests alone are not publish proof unless they contain a real before/after repro of the reported behavior or the operator explicitly accepts the remaining proof gap.
+- UI/visual changes require before/after screenshot or video when possible.
+- Runtime/queue/transport/channel bugs need a before/after timeline, logs, trace, real run output, or reproducible test run; add screenshots/video when useful.
+- CLI/config/parser bugs need before/after command output or a focused test.
+- Docs-only changes need render, link, or lint proof; screenshot only when relevant.
+- If real behavior proof or visual media is not possible, mark proof as incomplete, state the proof gap, provide the strongest replacement evidence, and name the missing environment or next GO.
 
 If proof cannot run:
 - do not pretend it is done
 - report missing tool/setup
 - do not publish
 
+## CLEANUP
+
+Purpose:
+- Remove exactly one approved disposable run directory after the operator has reviewed proof artifacts.
+
+Prerequisites:
+- The operator gave exact CLEANUP-GO.
+- The target directory is explicitly named.
+- The target belongs to a completed proof or PR context.
+- The target is inside the operator-approved disposable run root.
+
+Allowed:
+- inspect only the exact named disposable run directory
+- show current working directory
+- show size, for example `du -sh <target>` on Unix-like systems
+- resolve the path, for example `realpath <target>` when available
+- delete only that one directory after path checks pass
+- confirm it is gone
+
+Forbidden:
+- cleanup without exact CLEANUP-GO
+- wildcard paths
+- deleting the disposable run root itself
+- deleting the parent of the run root
+- deleting outside the approved run root
+- deleting multiple directories without separate approval
+
+Output:
+
+```text
+Phase: CLEANUP
+Environment:
+Issue/PR:
+Target directory:
+Current working directory:
+Resolved path:
+Size:
+Path checks:
+Deleted: yes/no
+Post-check:
+Not done:
+Next GO:
+```
 ## PR-BODY
 
 Prerequisites:
@@ -265,6 +332,7 @@ PUBLISH-GO: create draft PR
 PUBLISH-GO: update PR body #123
 PUBLISH-GO: post issue comment #123
 PUBLISH-GO: rerun failed CI job #123
+PUBLISH-CHECK-GO for PR #123
 ```
 
 Allowed only when named:
@@ -278,6 +346,27 @@ Allowed only when named:
 - CI rerun
 - label/assignee/reviewer/draft/ready
 
+
+After a successful `PUBLISH-GO: push to fork branch <branch>`:
+- stop
+- do not create a PR automatically
+- recommend the next GO: `PUBLISH-GO: create draft PR`
+- PR creation is always draft unless the operator explicitly says `ready` / `non-draft`.
+
+Push command guidance:
+- Use an explicit push target, for example `git push <remote> HEAD:<branch>`.
+- Do not use `git push -u ...` unless the operator explicitly asks to set local tracking.
+
+`PUBLISH-CHECK-GO for PR #<PR>`:
+- read-only post-publish check inside Phase 9
+- allowed: PR status, checks/CI status, CI logs, bot comments, and review threads read-only
+- forbidden: rerun, comment, label, ready, push, PR body update, resolve/reply
+- only recommend the next exact GO; do not react automatically
+
+After a successful `PUBLISH-GO: update PR body #<PR>`:
+- stop
+- do not rerun CI, comment, mark ready, label, review, or re-review automatically
+- optionally recommend the next GO: `PUBLISH-CHECK-GO for PR #<PR>`
 Before publish:
 - Fresh duplicate check CLEAR
 - maintainer comments rechecked
@@ -297,3 +386,4 @@ After PR creation:
 - no external announcement
 
 All of those need a new PUBLISH-GO.
+

@@ -20,10 +20,13 @@ Examples:
 - `SCOUT-GO` allows read-only issue and PR metadata only.
 - `GATE-GO` allows ownership and duplicate checks only.
 - `INSPECT-GO` allows code and test inspection without edits.
-- `HYGIENE-GO` allows local status and readiness checks only.
+- `HYGIENE-GO` checks checkout readiness and, for an exact clean/free checkout before PATCH, may update `main` with `git fetch origin`, `git switch main`, and `git merge --ff-only origin/main`.
 - `PATCH-GO` allows only the approved minimal change.
-- `PROOF-GO` allows only the named tests or proof.
+- `PROOF-GO` allows only the named tests or proof and must produce real behavior Before/After evidence for the reported issue.
 - `PUBLISH-GO` allows only the exact named write action.
+- `PUBLISH-CHECK-GO for PR #<PR>` is a read-only post-publish check; every reaction still needs its own exact `PUBLISH-GO`.
+- After a successful push or PR-body update, stop and recommend the next exact GO instead of chaining actions.
+- After a successful push, stop. Creating a PR always requires a separate `PUBLISH-GO: create draft PR`; PRs default to draft unless the operator explicitly says `ready` / `non-draft`.
 
 If the operator says `no commands`, run no commands, including read-only commands.
 If the operator says to stop, wait, or go inactive, do nothing in the background.
@@ -36,8 +39,7 @@ No server, SSH, terminal, file, test, build, service, config, firewall, network,
 
 PR proof may use only a test environment named by the operator for that run.
 Never assume a default server from old notes.
-Use a disposable run directory when filesystem or server proof is needed.
-Cleanup also needs explicit GO.
+Use one operator-approved disposable run directory when filesystem or server proof is needed. Cleanup is never automatic and needs exact CLEANUP-GO.
 
 ## Selective Loading
 
@@ -67,7 +69,8 @@ Read only the files needed for the current phase.
 - Phase 9: PUBLISH
 - Phase 10: SERVER-CONTEXT
 - Phase 11: BLOCKED-PATH-REVIEW
-- Phase 12: UPSTREAM-PR-REVIEW
+- Phase 12: CLEANUP
+- Phase 13: UPSTREAM-PR-REVIEW
 
 Normal flow:
 
@@ -87,14 +90,15 @@ Workflow order wins over numeric order.
 - After INSPECT, the normal next phase is HYGIENE, not PATCH.
 - PATCH must output `Coverage check` and `Patch decision`.
 - PROOF may be recommended only when `Patch decision: PATCH-COMPLETE`.
+- PROOF must include real behavior proof: Before evidence, After evidence, observed result, affected runtime/layer in `Real environment tested`, and proof gap if incomplete. Unit/mock tests count only when they directly reproduce the reported flow before/after and no closer real path is allowed or available. Tests alone are not publish proof unless they contain a real before/after repro or the operator explicitly accepts the proof gap. Add before/after screenshots or videos when visual or useful.
 - Before PROOF, PR-BODY, and every PUBLISH action, run a fresh duplicate check.
 - If the fresh duplicate check is `BLOCKED` or `UNCLEAR`, stop.
-- UPSTREAM-PR-REVIEW is read-only review of external or upstream PRs. No patch, no test server, no tracker/GitHub/GitLab write.
+- Phase 13 / UPSTREAM-PR-REVIEW is read-only review of external or upstream PRs. No patch, no test server, no tracker/GitHub/GitLab write.
 
 Concrete bundling rules:
 - SCOUT may check multiple defined read-only search windows until it has up to 3 candidates or can report the checked window as empty/blocker-heavy.
 - GATE may run all required ownership and duplicate searches for exactly one candidate in one read-only pass.
-- HYGIENE may check status, branch, dirty/free state, and `git diff --stat` read-only.
+- HYGIENE may check status, branch, dirty/free state, and `git diff --stat`; when a concrete clean/free checkout is named before PATCH, it may also update `main` with `git fetch origin`, `git switch main`, and `git merge --ff-only origin/main`.
 - Fresh duplicate check is an implicit read-only required check inside PROOF, PR-BODY, and PUBLISH.
 
 ## Minimal Output
@@ -138,3 +142,4 @@ Do not repeat:
 Not done:
 Next GO:
 ```
+

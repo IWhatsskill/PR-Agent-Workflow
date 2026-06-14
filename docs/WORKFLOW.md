@@ -2,17 +2,7 @@
 
 Safe phase-based workflow for pull request agents.
 
-[Who this is for](#who-this-is-for) | [Core rule](#core-rule) | [Invoke](#how-to-invoke-the-skill) | [Flow](#normal-pr-flow) | [Phases](#phase-guide) | [Files](#included-files)
-
 This skill helps an agent work on pull requests without jumping ahead. It separates discovery, ownership checks, inspection, checkout readiness, patching, proof, PR body work, and publishing into explicit phases. Each phase needs its own operator GO.
-
-## At A Glance
-
-- General-purpose phase-gated PR workflow.
-- Separates scout, gate, inspect, hygiene, patch, proof, PR body, and publish.
-- Requires explicit operator approval before each write step.
-- Includes reusable output templates and failure-pattern guidance.
-- Useful for cautious agent-assisted maintenance, bug fixing, and upstream PR work.
 
 ## Who This Is For
 
@@ -50,7 +40,8 @@ Use the skill name from `SKILL.md`:
 Use pr-agent-workflow. Phase 0.
 Use pr-agent-workflow. Phase 2 <project or search window>.
 Use pr-agent-workflow. Phase 3 <issue or ticket>.
-Use pr-agent-workflow. Phase 12 <pull request>.
+Use pr-agent-workflow. Phase 12 <approved disposable run directory>.
+Use pr-agent-workflow. Phase 13 <pull request>.
 ```
 
 The display folder is `PR Agent Workflow/`. The skill invocation name is `pr-agent-workflow`.
@@ -220,32 +211,44 @@ Normal next step: Phase 5 `HYGIENE` for a concrete checkout.
 
 ### Phase 5: HYGIENE
 
-Purpose: check whether the local checkout is safe and ready for patching.
+Purpose: make the exact local checkout safe, current, and ready for patching.
 
 Use when:
 
 - INSPECT is complete
 - a concrete checkout or working tree is named
 - the agent must verify clean/free state before PATCH
+- the checkout should be brought to current `origin/main`
 
-First read-only checks may include:
+Allowed for the named checkout:
 
 - branch name
 - clean or dirty state
 - free, occupied, or unclear status
 - `git diff --stat`
-- base/current freshness estimate
+- `git fetch origin`
+- `git switch main`
+- `git merge --ff-only origin/main`
+- final branch and distance check against `origin/main`
 
-Not allowed without extra GO:
+The agent must stop and report instead of patching if:
 
-- fetch
-- pull
-- switch
-- merge
+- the checkout is dirty, occupied, or unclear
+- `git switch main` fails
+- `git merge --ff-only origin/main` fails
+- `main` is still not current after the fast-forward attempt
+
+Not allowed in HYGIENE:
+
+- `git pull`
+- non-fast-forward merge
+- rebase
 - reset
 - clean
 - branch delete
 - file delete
+- patching
+- tests or builds
 - write actions
 
 Expected output includes:
@@ -255,7 +258,12 @@ Patch readiness:
 - branch:
 - clean/dirty:
 - free/occupied:
-- base/current state:
+- fetch origin:
+- switch main:
+- ff-only main<-origin/main:
+- current commit:
+- distance main...origin/main:
+- main current:
 - ready for PATCH: yes/no
 ```
 
@@ -267,7 +275,7 @@ Use when:
 
 - GATE is `FREE`
 - INSPECT is complete
-- HYGIENE says the checkout is ready
+- HYGIENE says the checkout is clean, free, and current on `main`
 - the operator gives PATCH-GO
 
 Allowed:
@@ -293,7 +301,7 @@ Only recommend Phase 7 when the patch decision is `PATCH-COMPLETE`.
 
 ### Phase 7: PROOF
 
-Purpose: prove the patch works.
+Purpose: prove the reported real behavior before and after the patch.
 
 Use when:
 
@@ -305,17 +313,42 @@ Allowed:
 
 - run only the named tests or proof steps
 - summarize results, failures, and untested areas
-- include source-only, diagnostic runtime, or live behavior proof when approved
+- include real behavior proof for the reported issue
+- include before/after screenshots or videos when the change is visual, UI-facing, or otherwise useful to observe
 
 Not allowed:
 
 - tracker, GitHub, or GitLab writes
 - PR creation
 - new installs or updates without extra approval
-- server use unless the environment, purpose, and scope are named
+- server use unless the environment, purpose, scope, and disposable run root are named
 - secret or private data exposure
 
 If the fresh duplicate check becomes `BLOCKED` or `UNCLEAR`, stop before proof.
+
+Proof requirements:
+
+Test environment and disposable run directory rules:
+- Server or filesystem proof may use only the environment explicitly named by the operator for that run.
+- If proof creates files on a server or shared filesystem, the operator must name or approve a disposable run root before work starts.
+- Use one fresh unique directory under that root: `<approved-run-root>/<date>-<issue-or-pr>-<short-slug>`.
+- Never work directly in the run root or its parent directory.
+- Never reuse an existing run directory unless the operator explicitly names that exact directory.
+- Before work, report/check current working directory and target directory.
+- If the path is wrong or unclear: STOP.
+- Cleanup is never part of PROOF; recommend Phase 12 / CLEANUP-GO later.
+
+- Always identify the behavior or issue addressed.
+- Always provide Before evidence and After evidence for that behavior.
+- `Real environment tested` must name the actual affected runtime or layer, such as local product/runtime, plugin or handler integration, CLI command, browser UI, test server, live transport, Gateway/API path, or queue/runtime path.
+- Tests alone count only when they prove the reported behavior as a reproducible before/fixed after case.
+- Unit or mock tests count only when they directly reproduce the reported flow before/after and no closer real path is allowed or available in that phase.
+- Tests alone are not publish proof unless they contain a real before/after repro of the reported behavior or the operator explicitly accepts the remaining proof gap.
+- For UI or visual changes, include before/after screenshots or video when possible.
+- For runtime, queue, transport, or channel bugs, use a before/after timeline, logs, trace, real run output, or reproducible test run; add screenshots/video when useful.
+- For CLI, config, or parser bugs, use before/after command output or a focused test.
+- Docs-only: render, link, or lint proof; screenshot only when relevant.
+- If real behavior proof or visual media is not possible, mark the proof as incomplete, state the proof gap, provide the strongest replacement evidence, and name the missing environment or next GO.
 
 ### Phase 8: PR-BODY
 
@@ -359,6 +392,7 @@ PUBLISH-GO: create draft PR
 PUBLISH-GO: update PR body #123
 PUBLISH-GO: post review comment only
 PUBLISH-GO: rerun failed CI job only
+PUBLISH-CHECK-GO for PR #123
 ```
 
 Allowed only when named:
@@ -372,6 +406,27 @@ Allowed only when named:
 - CI rerun
 - labels, reviewers, draft/ready state
 
+
+After a successful push PUBLISH-GO (`push to fork branch <branch>` or `push branch <branch> to <remote>`):
+- stop
+- do not create a PR automatically
+- recommend the next GO: `PUBLISH-GO: create draft PR`
+- PR creation is always draft unless the operator explicitly says `ready` / `non-draft`.
+
+Push command guidance:
+- Use an explicit push target, for example `git push <remote> HEAD:<branch>`.
+- Do not use `git push -u ...` unless the operator explicitly asks to set local tracking.
+
+`PUBLISH-CHECK-GO for PR #<PR>`:
+- read-only post-publish check inside Phase 9
+- allowed: PR status, checks/CI status, CI logs, bot comments, and review threads read-only
+- forbidden: rerun, comment, label, ready, push, PR body update, resolve/reply
+- only recommend the next exact GO; do not react automatically
+
+After a successful `PUBLISH-GO: update PR body #<PR>`:
+- stop
+- do not rerun CI, comment, mark ready, label, review, or re-review automatically
+- optionally recommend the next GO: `PUBLISH-CHECK-GO for PR #<PR>`
 Not allowed:
 
 - any write action not named in the GO
@@ -390,7 +445,7 @@ Use when:
 Allowed:
 
 - read server-safety rules bundled with the skill
-- report that server work requires an explicitly named environment, purpose, scope, and cleanup permission
+- report that server work requires an explicitly named environment, purpose, scope, approved disposable run root, and separate CLEANUP-GO
 
 Not allowed:
 
@@ -423,7 +478,48 @@ Not allowed:
 - write actions
 - arguing against a clear blocker
 
-### Phase 12: UPSTREAM-PR-REVIEW
+### Phase 12: CLEANUP
+
+Purpose: remove exactly one approved disposable run directory after proof artifacts were reviewed.
+
+Use when:
+
+- proof used a disposable run directory
+- the operator names the exact target directory
+- the target is inside the operator-approved disposable run root
+
+Allowed:
+
+- show current working directory
+- show or estimate target size
+- resolve the target path
+- delete only the exact named directory after path checks pass
+- confirm it is gone
+
+Not allowed:
+
+- wildcard paths
+- deleting the disposable run root itself
+- deleting the parent of the run root
+- deleting outside the approved run root
+- deleting multiple directories without separate approval
+
+Expected output includes:
+
+```text
+Phase: CLEANUP
+Environment:
+Issue/PR:
+Target directory:
+Resolved path:
+Size:
+Path checks:
+Deleted: yes/no
+Post-check:
+Next GO:
+```
+
+### Phase 13: UPSTREAM-PR-REVIEW
 
 Purpose: review external or upstream PRs read-only for relevance and risk.
 
@@ -457,7 +553,7 @@ Not allowed:
 2. Use Phase 2 to find candidates.
 3. Use Phase 3 for one candidate only.
 4. Continue to Phase 4 only if GATE is `FREE`.
-5. Run Phase 5 before any patch work.
+5. Run Phase 5 before any patch work so the named checkout is clean, free, and current on `main`.
 6. Patch only with Phase 6.
 7. Prove only with Phase 7.
 8. Draft the PR body only with Phase 8.
@@ -499,3 +595,7 @@ LICENSE
 ## License
 
 MIT. See `LICENSE`.
+
+
+
+

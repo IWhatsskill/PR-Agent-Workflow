@@ -44,7 +44,7 @@ Fill the sections with real answers before publishing. Remove empty placeholders
 ## Real Behavior Proof
 
 - Behavior or issue addressed:
-- Real environment tested:
+- Real environment tested (affected runtime/layer, not just "unit test"):
 - Exact steps or command run after this patch:
 
 ```bash
@@ -61,6 +61,12 @@ Fill the sections with real answers before publishing. Remove empty placeholders
 
 ```text
 ```
+
+- Visual proof:
+  - Before screenshot/video:
+  - After screenshot/video:
+  - If not applicable, why:
+- Remaining proof gap:
 
 ## Root Cause
 

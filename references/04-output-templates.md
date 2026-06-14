@@ -5,7 +5,7 @@ Do not write long justification essays.
 
 ## Read-only Bundling
 
-- SCOUT, GATE, and HYGIENE may bundle their required checks read-only in one pass.
+- SCOUT and GATE may bundle their required checks read-only in one pass. HYGIENE may also update a named clean/free checkout to current `origin/main` before PATCH.
 - Fresh duplicate check is an implicit read-only required check in PROOF, PR-BODY, and PUBLISH.
 - Patch, proof execution, publish actions, SSH/test-server work, and tracker/GitHub/GitLab write still require exact GO.
 
@@ -161,19 +161,22 @@ Patch readiness:
 - branch:
 - clean/dirty:
 - free/occupied:
-- base/current state:
+- fetch origin:
+- switch main:
+- ff-only main<-origin/main:
+- current commit:
+- distance main...origin/main:
+- main current:
 - ready for PATCH: yes/no
-Needs OK for:
-- fetch
-- switch
-- fast-forward
-- cleanup
-- branch delete
+Stopped because:
+- dirty/occupied/unclear/switch failed/ff-only failed/not current: yes/no
+Not done:
+- patch/tests/build/tracker write/GitHub write/GitLab write/reset/clean/pull
 Next GO:
 Recommended:
 - Phase 6 <Issue> on <Checkout>
 Why:
-- Checkout is clean/free/readiness-ok.
+- Checkout is clean, free, and current on main.
 ```
 
 ## PATCH
@@ -214,12 +217,29 @@ Fresh duplicate check:
 - Decision: CLEAR | BLOCKED | UNCLEAR
 Proof type: source only | diagnostic runtime | live behavior
 Tests/Proof:
+Real behavior proof:
+- Behavior or issue addressed:
+- Real environment tested (affected runtime/layer, not just "unit test"):
+- Exact steps or command run after this patch:
+- Before evidence:
+- After evidence:
+- Observed result after fix:
+- Artifact type: screenshot | video | log/timeline | command output | test result | source assertion
+- Visual proof:
+  - Before screenshot/video:
+  - After screenshot/video:
+  - If not applicable, why:
+- Why artifact is appropriate:
+- Remaining proof gap:
 Result:
 Baseline comparison:
 What was not tested:
-Screenshots/Videos: yes/no
 Expected rating:
-Cleanup needed: yes/no
+Cleanup:
+- Needed: yes/no/not applicable
+- Path/scope:
+- Allowed now: no, unless this GO is exact CLEANUP-GO
+- If yes: next GO is Phase 12 / CLEANUP-GO, do not delete automatically
 Next GO:
 Recommended:
 - Phase 8 <Issue>
@@ -305,6 +325,61 @@ Not executed:
 Next safe step:
 ```
 
+
+If the allowed action was a push:
+- after a successful push, stop
+- do not create a PR automatically
+- `Next safe step:` must recommend `PUBLISH-GO: create draft PR`
+- PR creation is always draft unless the operator explicitly says `ready` / `non-draft`.
+
+If the allowed action was `update PR body #<PR>`:
+- after a successful PR body update, stop
+- do not rerun CI, comment, mark ready, label, review, or re-review automatically
+- `Next safe step:` may recommend `PUBLISH-CHECK-GO for PR #<PR>`
+
+## PUBLISH-CHECK
+
+```text
+Phase: PUBLISH
+Subaction: PUBLISH-CHECK-GO
+PR:
+Read-only checked:
+- PR status:
+- checks / CI status:
+- CI logs:
+- bot comments:
+- review threads:
+Forbidden and not done:
+- rerun:
+- comment:
+- label:
+- ready:
+- push:
+- PR body update:
+- resolve/reply:
+Result:
+Next exact GO:
+```
+## CLEANUP
+
+```text
+Phase: CLEANUP
+Environment:
+Issue/PR:
+Target directory:
+Current working directory:
+Resolved path:
+Size:
+Path checks:
+- inside approved disposable run root: yes/no
+- target is not the root itself: yes/no
+- target is not the parent of the root: yes/no
+- no wildcards: yes/no
+Deleted: yes/no
+Post-check:
+Not done:
+Next GO:
+```
 ## UPSTREAM-PR-REVIEW
 
 ```text
@@ -351,3 +426,4 @@ Next GO:
 ```text
 Understood. No commands, no reads, no writes. I will wait.
 ```
+
