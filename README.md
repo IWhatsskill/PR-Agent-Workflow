@@ -2,7 +2,7 @@
 
 **Safe phase-based workflow for pull request agents**
 
-This is a compact Codex skill for agents working on pull requests. It keeps PR work split into explicit phases so an agent can scout, inspect, patch, prove, and publish without skipping approval gates.
+This is a compact workflow skill for agents working on pull requests. It keeps PR work split into explicit phases so an agent can scout, inspect, patch, prove, and publish without skipping approval gates.
 
 Use it when you want cautious agent-assisted maintenance, bug fixing, upstream PR work, or review handoffs without turning the agent into autopilot.
 
@@ -30,7 +30,7 @@ Use it when you want cautious agent-assisted maintenance, bug fixing, upstream P
 
 ## Quick Start
 
-Ask Codex to use the skill by name:
+Ask your OpenClaw agent to use the skill by name:
 
 ```text
 Use pr-agent-workflow. Phase 0.
