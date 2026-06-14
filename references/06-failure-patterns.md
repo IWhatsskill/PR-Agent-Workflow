@@ -1,4 +1,4 @@
-# Failure Patterns
+﻿# Failure Patterns
 
 These patterns come from real agent failures.
 Use them to stop early, not to complicate every phase.
@@ -94,7 +94,7 @@ Right:
 - every tracker/GitHub/GitLab write action needs exact PUBLISH-GO.
 - after PR creation, read/report only.
 
-## 9. Read-only Bundling Becomes Phase Escalation
+## 9. Bundling And Checkout Readiness Becomes Phase Escalation
 
 Wrong:
 - SCOUT bundles search windows and then starts GATE or INSPECT.
@@ -117,3 +117,4 @@ Right:
 - active state decides active work.
 - archive is evidence only when the exact topic is named.
 - old proof does not prove a new PR.
+

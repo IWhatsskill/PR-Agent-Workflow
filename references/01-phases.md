@@ -6,6 +6,7 @@ A GO for one phase authorizes no other phase.
 ## Current Proof And Publish Guardrails
 
 These rules override any shorter examples later in this file.
+Read this section as global guardrails, not as the current phase. After reading it, continue with the requested Phase 0-14 section.
 
 Fresh duplicate check minimum before PROOF, PR-BODY, and every PUBLISH action:
 - issue number
@@ -547,6 +548,7 @@ Why:
 Not done:
 Next GO:
 ```
+
 
 
 
