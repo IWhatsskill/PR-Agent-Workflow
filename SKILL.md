@@ -51,7 +51,7 @@ Read only the files needed for the current phase.
 - Output templates: `references/04-output-templates.md`
 - PR body template: `references/05-pr-body-template.md`
 - Failure patterns: `references/06-failure-patterns.md`
-- Maintainer test notes: `references/07-maintainer-test.md`
+- Skill test notes: `references/07-skill-test.md`
 
 ## Phases
 

@@ -18,6 +18,8 @@ Use it when you want cautious agent-assisted maintenance, bug fixing, upstream P
   <a href="references/05-pr-body-template.md"><strong>PR body template</strong></a>
   &nbsp;|&nbsp;
   <a href="references/06-failure-patterns.md"><strong>Failure patterns</strong></a>
+  &nbsp;|&nbsp;
+  <a href="references/07-skill-test.md"><strong>Skill test</strong></a>
 </p>
 
 ## What It Covers

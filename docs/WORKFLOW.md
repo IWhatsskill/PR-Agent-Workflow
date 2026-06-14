@@ -491,7 +491,7 @@ references/03-patch-proof-publish.md
 references/04-output-templates.md
 references/05-pr-body-template.md
 references/06-failure-patterns.md
-references/07-maintainer-test.md
+references/07-skill-test.md
 LICENSE
 .clawhubignore
 ```

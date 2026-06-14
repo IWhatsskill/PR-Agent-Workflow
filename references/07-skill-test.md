@@ -1,6 +1,6 @@
-# Maintainer Test
+# Skill Test
 
-This file is optional maintainer documentation for the public skill.
+This file is optional validation documentation for the public skill.
 It is not a runtime instruction.
 
 ## Structure Check
@@ -20,7 +20,7 @@ pr-agent-workflow/
   references/04-output-templates.md
   references/05-pr-body-template.md
   references/06-failure-patterns.md
-  references/07-maintainer-test.md
+  references/07-skill-test.md
 ```
 
 ## Redaction Check
