@@ -1,11 +1,11 @@
-# Output Templates
+﻿# Output Templates
 
 Use short fixed forms.
 Do not write long justification essays.
 
-## Read-only Bundling
+## Bundling And Checkout Readiness
 
-- SCOUT and GATE may bundle their required checks read-only in one pass. HYGIENE may also update a named clean/free checkout to current `origin/main` before PATCH.
+- SCOUT and GATE may bundle their required read-only checks in one pass. HYGIENE checkout readiness may also update a named clean/free checkout to current `origin/main` before PATCH.
 - Fresh duplicate check is an implicit read-only required check in PROOF, PR-BODY, and PUBLISH.
 - Patch, proof execution, publish actions, SSH/test-server work, and tracker/GitHub/GitLab write still require exact GO.
 
@@ -206,6 +206,36 @@ Alternatives:
 
 ## PROOF
 
+Required extra PROOF fields:
+
+```text
+Fresh duplicate check:
+- issue:
+- title/symptom:
+- open PRs:
+- Fixes/Closes:
+- affected files/functions:
+- closed/canonical/superseding PRs:
+- maintainer/bot direction:
+- stop labels/claims:
+
+Tooling/Tests:
+- package manager:
+- affected package/module:
+- changed files:
+- selected commands:
+- why these commands:
+- result:
+- uncovered:
+
+Artifact hygiene:
+- checked for IPs/URLs/local paths/login/setup/private data:
+- redaction/trim needed:
+- public URL available:
+- local path only:
+```
+
+
 ```text
 Phase: PROOF
 Candidate:
@@ -339,6 +369,17 @@ If the allowed action was `update PR body #<PR>`:
 
 ## PUBLISH-CHECK
 
+PUBLISH-CHECK must also include:
+
+```text
+- head SHA/current commit:
+- draft/ready status:
+- failed-job logs:
+- PR body artifacts visible/public:
+- mergeability if available:
+```
+
+
 ```text
 Phase: PUBLISH
 Subaction: PUBLISH-CHECK-GO
@@ -443,4 +484,7 @@ Next GO:
 ```text
 Understood. No commands, no reads, no writes. I will wait.
 ```
+
+
+
 

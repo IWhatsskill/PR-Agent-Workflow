@@ -1,4 +1,4 @@
-# Patch Proof Publish
+﻿# Patch Proof Publish
 
 This file applies only after `Ownership Gate: FREE`.
 
@@ -9,6 +9,55 @@ GATE FREE -> INSPECT -> HYGIENE -> PATCH -> PROOF -> PR-BODY -> PUBLISH
 ```
 
 Every phase needs its own GO.
+
+## Current Proof And Publish Guardrails
+
+These rules override any shorter examples later in this file.
+
+Fresh duplicate check minimum before PROOF, PR-BODY, and every PUBLISH action:
+- issue number
+- issue title and reported symptom
+- open PRs for the issue
+- new `Fixes #...` / `Closes #...`
+- affected files and functions, when known
+- relevant closed, duplicate, superseding, or canonical PRs
+- new maintainer, reviewer, bot, or triage bot comments
+- stop labels, ownership claims, or assignee changes
+
+Phase 7 PROOF must do both:
+- Run relevant project tooling when present and feasible: package manager/script inspection, static checks, typecheck, lint, and focused tests selected for the changed files.
+- Prove the reported real behavior with Before/After evidence. Static checks and tests never replace real behavior proof.
+
+Runtime, package-manager, build, and test proof should use the operator-approved project proof environment for that run. Do not spend time probing unrelated local machine tooling unless local proof is explicitly allowed. If no suitable test-environment GO exists, stop and ask for the exact PROOF-GO.
+
+Artifact hygiene:
+- Name artifacts clearly: `before-*`, `after-*`, `test-*`, `log-*`, or `timeline-*`.
+- Check screenshots, videos, and logs for IPs, URLs, local paths, setup screens, login screens, tokens, and private data before PR use.
+- Redact or trim artifacts when needed.
+- Local artifact paths are not public PR evidence.
+- A PR body may claim visual artifacts only with real `github.com/user-attachments/assets/...` URLs or other public artifact links.
+- If upload is needed, the operator uploads the artifact and the agent inserts the final URLs afterward.
+
+Phase 8 PR-BODY:
+- Do not dump the complete body into chat unless asked.
+- Report body status and changed sections.
+- Write `Remaining proof gap: None for the reported behavior.` only when no gap remains.
+
+Phase 9 PUBLISH:
+- Commit messages follow repository convention. If unclear, read recent history and propose the message. Fallback: `<area>: <short fix>` plus `Fixes #<issue>`.
+- Push fork branches with `git push fork HEAD:<branch>`; do not use `git push -u ...` unless local tracking is explicitly requested.
+- After a successful push, stop and recommend `PUBLISH-GO: create draft PR`. Do not create the PR automatically.
+- `PUBLISH-CHECK-GO for PR #<PR>` is read-only and should follow PR creation, PR body updates, pushes to existing PRs, and bot/CI signals.
+- PUBLISH-CHECK checks draft/ready status, head SHA/current commit, PR status, checks/CI, failed-job logs, bot comments, review threads, PR-body artifacts/URLs, and mergeability when available.
+- PUBLISH-CHECK must not rerun CI, comment, label, ready/draft, push, update the body, resolve, or reply.
+
+If a reviewer, maintainer, bot, or CI requests changes:
+- PR-body/formality only: exact `PUBLISH-GO: update PR body #<PR>`.
+- Code/test problem: `INSPECT -> HYGIENE -> PATCH -> PROOF -> PUBLISH -> PUBLISH-CHECK`.
+- Re-review only: exact `PUBLISH-GO: post re-review comment #<PR>`.
+
+Rollback/abort is not automatic. Use exact `PATCH-ABORT-GO` or `ROLLBACK-GO`; show status/diff first, touch only the agent's own local uncommitted changes, and never use `git reset --hard` or `git clean` without exact GO.
+
 
 ## INSPECT
 
@@ -408,4 +457,5 @@ Forbidden in HANDOFF / STATE:
 - tracker/GitHub/GitLab write
 - commit, push, PR creation, comments, labels, reruns, ready/draft changes
 - reconstructing old archives or long history
+
 

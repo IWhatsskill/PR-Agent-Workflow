@@ -1,4 +1,4 @@
----
+﻿---
 name: pr-agent-workflow
 description: "Safe phase-based PR workflow: scout, gate, inspect, patch, proof, body, publish, handoff, and upstream PR review."
 license: MIT
@@ -84,7 +84,7 @@ Workflow order wins over numeric order.
 
 ## Hard Gates
 
-- Read-only phases may bundle their required checks in one pass.
+- Read-only checks may be bundled in one pass. HYGIENE checkout readiness is the explicit local-git freshness exception for a named clean/free checkout before PATCH.
 - Write/change phases always require exact GO.
 - Bundling checks never authorizes phase escalation.
 - Bundling checks never authorizes tests, builds, patch, commit, push, PR creation, comments, SSH/server work, or tracker/GitHub/GitLab write.
@@ -103,6 +103,12 @@ Concrete bundling rules:
 - GATE may run all required ownership and duplicate searches for exactly one candidate in one read-only pass.
 - HYGIENE may check status, branch, dirty/free state, and `git diff --stat`; when a concrete clean/free checkout is named before PATCH, it may also update `main` with `git fetch origin`, `git switch main`, and `git merge --ff-only origin/main`.
 - Fresh duplicate check is an implicit read-only required check inside PROOF, PR-BODY, and PUBLISH.
+
+Additional current guardrails:
+- Phase 7 must inspect project scripts and run relevant static checks/tests when feasible; these never replace real behavior Before/After proof.
+- Runtime/build/test proof should use the operator-approved project proof environment for that run instead of probing unrelated local tooling.
+- Proof artifacts must be named, leak-checked, and public before they are claimed in a PR body.
+- Phase 9 PUBLISH-CHECK is the read-only follow-up after PR creation, body update, push to an existing PR, or bot/CI signal.
 
 ## Minimal Output
 
@@ -145,4 +151,6 @@ Do not repeat:
 Not done:
 Next GO:
 ```
+
+
 

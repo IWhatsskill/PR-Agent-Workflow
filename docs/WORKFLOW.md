@@ -1,4 +1,4 @@
-# PR Agent Workflow
+﻿# PR Agent Workflow
 
 Safe phase-based workflow for pull request agents.
 
@@ -30,7 +30,7 @@ Examples:
 - `PROOF` does not allow commits, pushes, PR creation, or comments.
 - `PUBLISH` allows only the exact write action named by the operator.
 
-Read-only phases may bundle their required checks. Write or change phases always require an exact GO.
+Read-only checks may be bundled. HYGIENE checkout readiness is the explicit local-git freshness exception for a named clean/free checkout before PATCH. Write or change phases always require an exact GO.
 
 ## How To Invoke The Skill
 
@@ -583,6 +583,16 @@ Stop immediately if any of these appear:
 - checkout is dirty, occupied, or unclear
 - private or secret data risk
 
+## Proof And Publish Details
+
+Phase 7 is not only "run tests". The agent must inspect package-manager files and scripts, run relevant static checks/tests when present and feasible, and still provide real behavior Before/After evidence for the reported bug. Static checks and unit tests are supporting evidence, not a replacement for real behavior proof.
+
+When proof needs a server or shared filesystem, use only the operator-approved test environment and a fresh disposable run directory. Cleanup is a separate Phase 12 action.
+
+Visual artifacts must be checked for leaks before PR use. A PR body may claim screenshots or videos only when final public URLs exist, such as public attachment URLs.
+
+After PR creation, PR body updates, pushes to an existing PR, or bot/CI signals, use Phase 9 PUBLISH-CHECK-GO as a read-only follow-up before deciding the next write action.
+
 ## Included Files
 
 ```text
@@ -603,6 +613,8 @@ LICENSE
 ## License
 
 MIT. See `LICENSE`.
+
+
 
 
 
